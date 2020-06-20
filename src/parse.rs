@@ -7,9 +7,18 @@ pub struct Node {
 	id: i32,
 	depth: i32,
 	class_number: i32,
+	children: Option<Vec<Node>>,
 }
 
-pub fn parse_tree(content: &str) -> Vec<Node> {
+pub fn build_tree(nodes :&Vec<Node>) -> &Node{
+	//sort nodes
+	//nodes.sort_by();
+	let root = &nodes[0];
+
+	return &root;
+}
+
+pub fn parse_nodes(content: &str) -> Vec<Node> {
 	let content_split_iterator = content.split("\n");
 
 	let all_lines: Vec<&str> = content_split_iterator.collect();
@@ -48,6 +57,7 @@ pub fn parse_tree(content: &str) -> Vec<Node> {
 				path: String::from(path),
 				depth: depth,
 				class_number: class,
+				children: Some(Vec::new())
 			});
 		}
 	}	return nodes;
