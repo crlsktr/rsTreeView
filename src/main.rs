@@ -1,5 +1,4 @@
 mod parse;
-
 use std::fs;
 use parse::{parse_nodes,build_tree};
 
@@ -9,5 +8,5 @@ fn main() {
 		.expect("Something went wrong trying to read the file");
 	let mut result = parse_nodes(&content);
 	let tree = build_tree(&mut result);
-	println!("root {:?}", tree);
+	println!("root {:#?}", serde_json::to_string(&tree).unwrap());
 }

@@ -1,7 +1,8 @@
+use serde::{Serialize};
 /*
 This is specific to the shape of data I have
 */
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Node {
 	path: String,
 	id: i32,
@@ -11,19 +12,19 @@ pub struct Node {
 }
 
 fn place_in_tree(parent: &mut Node, child: Node) {
-	println!("inserting node: {:?} into parent {:?}", child, parent);
+	// println!("inserting node: {:?} into parent {:?}", child, parent);
 	// if child.path[last segment] == parent.id then child belongs below parent
 	let segmented_str_path: Vec<&str> = child.path.split("/").filter(|x| x !=&"").collect();
-	let mut segmented_path: Vec<i32> = segmented_str_path
+	let segmented_path: Vec<i32> = segmented_str_path
 		.iter()
 		.map(|x| match x.parse::<i32>(){
 			Ok(v) => v,
 			Err(e) => {eprintln!("couldn't parse value {}", e); return -1;},
 		})
 		.collect();
-	let last_child_segment = match segmented_path.pop() {
-		Some(value) => value,
-		None => 0,
+	let last_child_segment = *match segmented_path.last(){
+		Some(v) => v,
+		None => &0
 	};
 
 	if last_child_segment == parent.id {
@@ -34,7 +35,7 @@ fn place_in_tree(parent: &mut Node, child: Node) {
 				parent.children = Some(vec![child]);
 			}
 		};
-		println!("child inserted, root {:#?}", parent);
+		// println!("child inserted, root {:#?}", parent);
 	} else {
 		let mut segment_iterator = segmented_path.iter();
 		segment_iterator.position(|&x| x == parent.id);
@@ -75,7 +76,6 @@ pub fn build_tree(nodes: &mut Vec<Node>) -> Node {
 	while nodes.len() > 0 {
 		let node = nodes.remove(0);
 		place_in_tree(&mut root, node);
-		println!("\n");
 	}
 	return root;
 }
