@@ -12,8 +12,6 @@ pub struct Node {
 }
 
 fn place_in_tree(parent: &mut Node, child: Node) {
-	// println!("inserting node: {:?} into parent {:?}", child, parent);
-	// if child.path[last segment] == parent.id then child belongs below parent
 	let segmented_str_path: Vec<&str> = child.path.split("/").filter(|x| x !=&"").collect();
 	let segmented_path: Vec<i32> = segmented_str_path
 		.iter()
@@ -35,7 +33,6 @@ fn place_in_tree(parent: &mut Node, child: Node) {
 				parent.children = Some(vec![child]);
 			}
 		};
-		// println!("child inserted, root {:#?}", parent);
 	} else {
 		let mut segment_iterator = segmented_path.iter();
 		segment_iterator.position(|&x| x == parent.id);
@@ -63,14 +60,10 @@ fn place_in_tree(parent: &mut Node, child: Node) {
 		};
 
 		place_in_tree(next_parent, child);
-		// 	find the current parent in the child path and select the next descendant in the child's path
-		// 	call again with the found new parent and new
 	}
 }
 
 pub fn build_tree(nodes: &mut Vec<Node>) -> Node {
-	// println!("building tree from: {:#?}", nodes);
-	//sort nodes
 	nodes.sort_by(|a, b| a.depth.cmp(&b.depth));
 	let mut root = nodes.remove(0);
 	while nodes.len() > 0 {
