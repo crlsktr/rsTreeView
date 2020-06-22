@@ -8,7 +8,6 @@ fn main() {
 	let content = fs::read_to_string(filename)
 		.expect("Something went wrong trying to read the file");
 	let mut result = parse_nodes(&content);
-	println!("results length {}",  result.len());
 	let tree = build_tree(&mut result);
 	println!("root {:?}", tree);
 }

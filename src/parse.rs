@@ -11,46 +11,71 @@ pub struct Node {
 }
 
 fn place_in_tree(parent: &mut Node, child: Node) {
+	println!("inserting node: {:?} into parent {:?}", child, parent);
 	// if child.path[last segment] == parent.id then child belongs below parent
-	let segmented_str_path: Vec<&str> = child.path
-		.split("/")
+	let segmented_str_path: Vec<&str> = child.path.split("/").filter(|x| x !=&"").collect();
+	let mut segmented_path: Vec<i32> = segmented_str_path
+		.iter()
+		.map(|x| match x.parse::<i32>(){
+			Ok(v) => v,
+			Err(e) => {eprintln!("couldn't parse value {}", e); return -1;},
+		})
 		.collect();
-	let mut segmented_path: Vec<i32> = segmented_str_path.iter()
-	.map(|x| x.parse::<i32>().unwrap() )
-	.collect();
 	let last_child_segment = match segmented_path.pop() {
 		Some(value) => value,
 		None => 0,
 	};
+
 	if last_child_segment == parent.id {
-		match &mut parent.children { //Have to borrow as mutable because we're modifying the children array
+		match &mut parent.children {
+			//Have to borrow as mutable because we're modifying the children array
 			Some(arr) => arr.push(child),
 			None => {
 				parent.children = Some(vec![child]);
 			}
 		};
+		println!("child inserted, root {:#?}", parent);
 	} else {
 		let mut segment_iterator = segmented_path.iter();
 		segment_iterator.position(|&x| x == parent.id);
-		let next_possible_parent = match segment_iterator.next(){
+		let next_possible_parent = match segment_iterator.next() {
 			Some(x) => x,
 			None => {
 				eprintln!("Parent is not in the path of child. This means that the node {:?} is disconnected from the tree", child);
 				return;
 			}
 		};
+		let mut t_vector: Vec<Node> = Vec::new();
+		let parent_children = match &mut parent.children {
+			Some(v) => v,
+			None => &mut t_vector,
+		};
+
+		let next_parent = match parent_children
+			.iter_mut()
+			.find(|x| x.id == *next_possible_parent)
+		{
+			Some(val) => val,
+			None => {
+				panic!("Parent.Children doesn't contain the next parent. This shouldn't happen.")
+			}
+		};
+
+		place_in_tree(next_parent, child);
 		// 	find the current parent in the child path and select the next descendant in the child's path
 		// 	call again with the found new parent and new
 	}
 }
 
 pub fn build_tree(nodes: &mut Vec<Node>) -> Node {
+	// println!("building tree from: {:#?}", nodes);
 	//sort nodes
 	nodes.sort_by(|a, b| a.depth.cmp(&b.depth));
 	let mut root = nodes.remove(0);
 	while nodes.len() > 0 {
 		let node = nodes.remove(0);
 		place_in_tree(&mut root, node);
+		println!("\n");
 	}
 	return root;
 }
@@ -58,12 +83,16 @@ pub fn build_tree(nodes: &mut Vec<Node>) -> Node {
 pub fn parse_nodes(content: &str) -> Vec<Node> {
 	let content_split_iterator = content.split("\n");
 
-	let all_lines: Vec<&str> = content_split_iterator.collect();
+	let all_lines: Vec<&str> = content_split_iterator
+		.map(|x| match x.strip_suffix("\r"){
+			Some(v) => v,
+			None => x
+		})
+		.collect();
 
 	let mut nodes: Vec<Node> = Vec::new();
 
 	for line in all_lines {
-		//println!("{}",line);
 		let segments: Vec<&str> = line.split("\t").collect();
 
 		if segments.len() != 4 {
