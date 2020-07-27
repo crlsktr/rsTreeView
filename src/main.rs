@@ -8,5 +8,5 @@ fn main() {
 		.expect("Something went wrong trying to read the file");
 	let mut result = parse_nodes(&content);
 	let tree = build_tree(&mut result);
-	println!("root {:#?}", serde_json::to_string(&tree).unwrap());
+	println!("{:#?}", serde_json::to_string(&tree).unwrap());
 }
